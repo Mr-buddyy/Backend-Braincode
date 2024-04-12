@@ -1,0 +1,18 @@
+# Ignore binary files and build artifacts
+/target/
+
+# Ignore local configuration files
+.env
+.env.local
+
+# Ignore log files
+*.log
+/log/
+
+# Ignore editor and IDE files
+.vscode/
+.idea/
+
+# Ignore temporary or cache files
+/tmp/
+/cache/
