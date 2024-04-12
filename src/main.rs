@@ -14,17 +14,21 @@ mod models;
 
 type DbPool = r2d2::Pool<ConnectionManager<MysqlConnection>>;
 
-#[delete("/edukasi")]
+#[delete("/edukasi/{id}")]
 async fn delete_edukasi(pool: web::Data<DbPool>, id: web::Path<String>) -> impl Responder {
+    use schema::edukasi::dsl::*;
+
     // Acquire a connection from the pool
     let mut conn = pool.get().expect("Failed to get DB connection from pool");
-    // Query the database to delete edukasi data
-    let deleted_rows = diesel::delete(schema::edukasi::table.filter(schema::edukasi::id.eq(id.into_inner())))
+
+    // Query the database to delete edukasi data by ID
+    let deleted_rows = diesel::delete(edukasi.filter(id.eq(&id)))
         .execute(&mut conn)
         .expect("Error deleting edukasi data from database");
 
     HttpResponse::Ok().json(deleted_rows)
 }
+
 
 #[get("/edukasi")]
 async fn get_edukasi(pool: web::Data<DbPool>) -> impl Responder {
@@ -60,6 +64,21 @@ async fn post_edukasi(pool: web::Data<DbPool>, edukasi:web::Json<models::CreateE
     HttpResponse::Ok().body("New edukasi has been saved")
 }
 
+#[delete("/hero/{id}")]
+async fn delete_hero(pool: web::Data<DbPool>, id: web::Path<String>) -> impl Responder {
+    use schema::hero::dsl::*;
+
+    // Acquire a connection from the pool
+    let mut conn = pool.get().expect("Failed to get DB connection from pool");
+
+    // Query the database to delete data by ID
+    let deleted_rows = diesel::delete(hero.filter(id.eq(&id)))
+        .execute(&mut conn)
+        .expect("Error deleting edukasi data from database");
+
+    HttpResponse::Ok().json(deleted_rows)
+}
+
 #[get("/hero")]
 async fn get_hero(pool: web::Data<DbPool>) -> impl Responder {
     // Acquire a connection from the pool
@@ -68,9 +87,7 @@ async fn get_hero(pool: web::Data<DbPool>) -> impl Responder {
     let hero_data = schema::hero::table
         .load::<models::Hero>(&mut conn)
         .expect("Error loading edukasi data from database");
-
     HttpResponse::Ok().json(hero_data)
-
 }
 
 #[post("/hero")]
@@ -91,6 +108,21 @@ async fn post_hero(pool: web::Data<DbPool>, hero:web::Json<models::CreateHero>) 
         .expect("Error saving new edukasi");
 
     HttpResponse::Ok().body("New edukasi has been saved")
+}
+
+#[delete("/experience/{id}")]
+async fn delete_experience(pool: web::Data<DbPool>, id: web::Path<String>) -> impl Responder {
+    use schema::experience::dsl::*;
+
+    // Acquire a connection from the pool
+    let mut conn = pool.get().expect("Failed to get DB connection from pool");
+
+    // Query the database to delete data by ID
+    let deleted_rows = diesel::delete(experience.filter(id.eq(&id)))
+        .execute(&mut conn)
+        .expect("Error deleting edukasi data from database");
+
+    HttpResponse::Ok().json(deleted_rows)
 }
 
 #[get("/experience")]
@@ -127,6 +159,21 @@ async fn post_experience(pool: web::Data<DbPool>, experience:web::Json<models::C
     HttpResponse::Ok().body("New edukasi has been saved")
 }
 
+#[delete("/contact/{id}")]
+async fn delete_contact(pool: web::Data<DbPool>, id: web::Path<String>) -> impl Responder {
+    use schema::contact::dsl::*;
+
+    // Acquire a connection from the pool
+    let mut conn = pool.get().expect("Failed to get DB connection from pool");
+
+    // Query the database to delete data by ID
+    let deleted_rows = diesel::delete(contact.filter(id.eq(&id)))
+        .execute(&mut conn)
+        .expect("Error deleting edukasi data from database");
+
+    HttpResponse::Ok().json(deleted_rows)
+}
+
 #[get("/contact")]
 async fn get_contact(pool: web::Data<DbPool>) -> impl Responder {
     // Acquire a connection from the pool
@@ -156,6 +203,21 @@ async fn post_contact(pool: web::Data<DbPool>, contact:web::Json<models::CreateC
         .expect("Error saving new edukasi");
 
     HttpResponse::Ok().body("New edukasi has been saved")
+}
+
+#[delete("/portofolio/{id}")]
+async fn delete_portofolio(pool: web::Data<DbPool>, id: web::Path<String>) -> impl Responder {
+    use schema::portofolio::dsl::*;
+
+    // Acquire a connection from the pool
+    let mut conn = pool.get().expect("Failed to get DB connection from pool");
+
+    // Query the database to delete data by ID
+    let deleted_rows = diesel::delete(portofolio.filter(id.eq(&id)))
+        .execute(&mut conn)
+        .expect("Error deleting edukasi data from database");
+
+    HttpResponse::Ok().json(deleted_rows)
 }
 
 #[get("/portofolio")]
@@ -190,6 +252,21 @@ async fn post_portofolio(pool: web::Data<DbPool>, portofolio: web::Json<models::
         .expect("Error saving new edukasi");
 
     HttpResponse::Ok().body("New portofolio has been saved")
+}
+
+#[delete("/skill/{id}")]
+async fn delete_skill(pool: web::Data<DbPool>, id: web::Path<String>) -> impl Responder {
+    use schema::skill::dsl::*;
+
+    // Acquire a connection from the pool
+    let mut conn = pool.get().expect("Failed to get DB connection from pool");
+
+    // Query the database to delete data by ID
+    let deleted_rows = diesel::delete(skill.filter(id.eq(&id)))
+        .execute(&mut conn)
+        .expect("Error deleting edukasi data from database");
+
+    HttpResponse::Ok().json(deleted_rows)
 }
 
 #[get("/skill")]
@@ -249,17 +326,29 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .data(pool.clone()) // Share the connection pool across all routes
-            .service(post_skill)
-            .service(get_skill)
-            .service(post_portofolio)
-            .service(get_contact)
+            .service(delete_edukasi)
+            .service(post_edukasi)
+            .service(get_edukasi)
+
+            .service(delete_hero)
             .service(post_hero)
             .service(get_hero)
-            .service(get_portofolio)
+
+            .service(delete_experience)
             .service(post_experience)
-            .service(post_edukasi)
             .service(get_experience)
-            .service(get_edukasi)
+
+            .service(delete_portofolio)
+            .service(post_portofolio)
+            .service(get_portofolio)
+
+            .service(post_skill)
+            .service(get_skill)
+            .service(delete_skill)
+
+            .service(get_contact)
+            .service(post_contact)
+            .service(delete_contact)
     })
     .bind("127.0.0.1:8000")?
     .run()
